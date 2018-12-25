@@ -4,27 +4,23 @@
 /**
  * @name sequenceable
  * @description mongoose plugin to support sequence fields.
- * @param {Schema} schema valid mongoose schema
- * @param {Object} [optns] valid sequenceable plugin options
- * @see {@link https://docs.mongodb.com/v3.0/tutorial/create-an-auto-incrementing-field/}
- * @return {Function} valid mongoose plugin
+ * @return {Object} valid mongoose instance.
  * @author lally elias <lallyelias87@mail.com>
  * @since  0.1.0
  * @version 0.1.0
+ * @license MIT
+ * @public
  * @example
  * const mongoose = require('@lykmapipo/mongoose-sequenceable');
- * const EmployeeSchema = new Schema({
- *   ssn: { 
- *     sequenceable: {
- *       namespace: 'ssn', 
- *       increment: 1, 
- *       prefix: 'EM', 
- *       prefix: fn, 
- *       suffix: fn,
- *       format: fn
- *      } 
- *   }
+ * 
+ * new Schema({
+ *   ssn: { type: String, sequenceable: true }
  * });
+ *
+ * new Schema({
+ *   number: { type: String, sequenceable: { increment: 10 } }
+ * });
+ * 
  */
 
 
@@ -41,6 +37,44 @@ const Counter = include(__dirname, 'lib', 'counter.model');
 const _error = ('`{VALUE}` is not a valid sequence value for path `{PATH}`.');
 MongooseError.messages.String.sequenceable = _error;
 const DEFAULT_VALUE = 'sequence';
+
+
+/**
+ * @description Sequence validator factory
+ * @param {Object} optns valid sequenciable options
+ * @private
+ */
+function createValidator(optns) {
+  return function sequenceValidator(v, cb) {
+    /* this -> Model instance */
+
+    // TODO return if value is not DEFAULT_SEQUENCE
+
+    // normalize options
+    let options = _.merge({}, optns);
+    const { pathName } = options;
+
+    // obtain model name
+    const namespace = _.get(this, 'constructor.modelName');
+
+    // re-construct sequence generator options
+    options = _.merge({}, { namespace }, optns);
+
+    //TODO ignore is path has valid sequence pattern
+    // generate sequence
+    Counter.generate(options, function afterGenerateSequence(error, sequence) {
+      // set generated sequence
+      if (isInstance(this) && pathName) {
+        this[pathName] = sequence;
+      }
+
+      // notify generation completed
+      const isValid = (!_.isError(error) && !_.isEmpty(sequence));
+      cb(isValid);
+    }.bind(this));
+
+  };
+}
 
 
 /**
@@ -62,7 +96,9 @@ const DEFAULT_VALUE = 'sequence';
  * @api public
  */
 SchemaString.prototype.sequenceable = function sequenceable(optns, message) {
+  /* this -> String -> SchemaType */
 
+  // ensure no sequence validator exists
   if (this.sequenceableValidator) {
     this.validators = this.validators.filter(function (v) {
       return v.validator !== this.sequenceableValidator;
@@ -72,45 +108,31 @@ SchemaString.prototype.sequenceable = function sequenceable(optns, message) {
   // force default value for sequencing
   this.defaultValue = DEFAULT_VALUE;
 
-  // obtain schema path name
+  // obtain current schema path name
   const pathName = this.path;
 
-  // run validator
-  if (optns !== null && optns !== undefined) {
-
+  // add sequenceable validator
+  const defaults = { pathName };
+  const shouldApply = (optns !== null && optns !== undefined);
+  if (shouldApply) {
     // normalize options
-    let options = (_.isBoolean(optns) ? {} : _.merge({}, optns));
+    let options =
+      (_.isBoolean(optns) ? defaults : _.merge({}, defaults, optns));
 
-    // collect sequenceable validator options
+    // collect sequenceable validation message
     let msg = (message || MongooseError.messages.String.sequenceable);
     msg = (options.message || msg);
 
-    // collect validator
+    // add sequenceable validator
     this.validators.push({
       isAsync: true,
-      validator: this.sequenceableValidator = function (v, cb) {
-        // TODO return if value is not DEFAULT_SEQUENCE
-        // obtain model name
-        const namespace = _.get(this, 'constructor.modelName');
-        options = _.merge({}, { namespace }, options);
-        //TODO ignore is path has valid sequence pattern
-        // generate sequence
-        Counter.generate(options, function (error, sequence) {
-          // set generated sequence
-          if (isInstance(this)) {
-            this[pathName] = sequence;
-          }
-
-          // notify generation completed
-          const isValid = (!_.isError(error) && !_.isEmpty(sequence));
-          cb(isValid);
-        }.bind(this));
-      },
+      validator: this.sequenceableValidator = createValidator(options),
       message: msg,
       type: 'sequenceable'
     });
   }
 
+  /* return */
   return this;
 
 };
