@@ -39,7 +39,7 @@ describe('sequenceable', () => {
     const Ticket = model(new Schema({
       number: {
         type: String,
-        sequenceable: { prefix: 'vip' },
+        sequenceable: { prefix: 'VIP' },
         required: true
       }
     }));
@@ -48,7 +48,7 @@ describe('sequenceable', () => {
     ticket.validate((error) => {
       expect(error).to.not.exist;
       expect(ticket.number).to.exist;
-      expect(ticket.number).to.contain('vip');
+      expect(ticket.number).to.contain('VIP');
       done(error, ticket);
     });
   });
@@ -57,7 +57,7 @@ describe('sequenceable', () => {
     const Ticket = model(new Schema({
       number: {
         type: String,
-        sequenceable: { prefix: () => 'vip' },
+        sequenceable: { prefix: () => 'VIP' },
         required: true
       }
     }));
@@ -66,7 +66,7 @@ describe('sequenceable', () => {
     ticket.validate((error) => {
       expect(error).to.not.exist;
       expect(ticket.number).to.exist;
-      expect(ticket.number).to.contain('vip');
+      expect(ticket.number).to.contain('VIP');
       done(error, ticket);
     });
   });
@@ -92,7 +92,7 @@ describe('sequenceable', () => {
     });
   });
 
-  it('should be able to generate sequence with increment', (done) => {
+  it('should be able to generate sequence with custom increment', (done) => {
     const Ticket = model(new Schema({
       number: {
         type: String,
@@ -106,6 +106,63 @@ describe('sequenceable', () => {
       expect(error).to.not.exist;
       expect(ticket.number).to.exist;
       expect(ticket.number).to.contain('10');
+      done(error, ticket);
+    });
+  });
+
+  it('should be able to generate sequence with string suffix', (done) => {
+    const Ticket = model(new Schema({
+      number: {
+        type: String,
+        sequenceable: { suffix: 'TZ' },
+        required: true
+      }
+    }));
+
+    const ticket = new Ticket();
+    ticket.validate((error) => {
+      expect(error).to.not.exist;
+      expect(ticket.number).to.exist;
+      expect(ticket.number).to.contain('TZ');
+      done(error, ticket);
+    });
+  });
+
+  it('should be able to generate sequence with function suffix', (done) => {
+    const Ticket = model(new Schema({
+      number: {
+        type: String,
+        sequenceable: { suffix: () => 'TZ' },
+        required: true
+      }
+    }));
+
+    const ticket = new Ticket();
+    ticket.validate((error) => {
+      expect(error).to.not.exist;
+      expect(ticket.number).to.exist;
+      expect(ticket.number).to.contain('TZ');
+      done(error, ticket);
+    });
+  });
+
+  it('should be able to generate sequence with function suffix', (done) => {
+    const Ticket = model(new Schema({
+      country: {
+        type: String
+      },
+      number: {
+        type: String,
+        sequenceable: { suffix: function () { return this.country; } },
+        required: true
+      }
+    }));
+
+    const ticket = new Ticket({ country: 'TZ' });
+    ticket.validate((error) => {
+      expect(error).to.not.exist;
+      expect(ticket.number).to.exist;
+      expect(ticket.number).to.contain('TZ');
       done(error, ticket);
     });
   });
