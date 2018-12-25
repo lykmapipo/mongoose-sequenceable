@@ -92,24 +92,6 @@ describe('sequenceable', () => {
     });
   });
 
-  it('should be able to generate sequence with custom increment', (done) => {
-    const Ticket = model(new Schema({
-      number: {
-        type: String,
-        sequenceable: { increment: 10 },
-        required: true
-      }
-    }));
-
-    const ticket = new Ticket();
-    ticket.validate((error) => {
-      expect(error).to.not.exist;
-      expect(ticket.number).to.exist;
-      expect(ticket.number).to.contain('10');
-      done(error, ticket);
-    });
-  });
-
   it('should be able to generate sequence with string suffix', (done) => {
     const Ticket = model(new Schema({
       number: {
@@ -163,6 +145,61 @@ describe('sequenceable', () => {
       expect(error).to.not.exist;
       expect(ticket.number).to.exist;
       expect(ticket.number).to.contain('TZ');
+      done(error, ticket);
+    });
+  });
+
+  it('should be able to generate sequence with custom increment', (done) => {
+    const Ticket = model(new Schema({
+      number: {
+        type: String,
+        sequenceable: { increment: 10 },
+        required: true
+      }
+    }));
+
+    const ticket = new Ticket();
+    ticket.validate((error) => {
+      expect(error).to.not.exist;
+      expect(ticket.number).to.exist;
+      expect(ticket.number).to.contain('10');
+      done(error, ticket);
+    });
+  });
+
+  it('should be able to generate sequence with custom length', (done) => {
+    const Ticket = model(new Schema({
+      number: {
+        type: String,
+        sequenceable: { length: 10 },
+        required: true
+      }
+    }));
+
+    const ticket = new Ticket();
+    ticket.validate((error) => {
+      expect(error).to.not.exist;
+      expect(ticket.number).to.exist;
+      expect(ticket.number).to.have.length.at.least(10);
+      done(error, ticket);
+    });
+  });
+
+  it('should be able to generate sequence with custom pad', (done) => {
+    const Ticket = model(new Schema({
+      number: {
+        type: String,
+        sequenceable: { length: 10, pad: 'x' },
+        required: true
+      }
+    }));
+
+    const ticket = new Ticket();
+    ticket.validate((error) => {
+      expect(error).to.not.exist;
+      expect(ticket.number).to.exist;
+      expect(ticket.number).to.contain('x');
+      expect(ticket.number).to.not.contain('0');
       done(error, ticket);
     });
   });

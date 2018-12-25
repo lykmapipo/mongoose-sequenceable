@@ -52,14 +52,16 @@ function createValidator(optns) {
 
     // normalize options
     let options = _.merge({}, optns);
-    let { namespace, prefix, increment, suffix, pathName } = options;
+    let { namespace, prefix, increment, suffix } = options;
+    let { length, pad, pathName } = options;
     namespace = (namespace ? namespace : _.get(this, 'constructor.modelName'));
     prefix = (_.isFunction(prefix) ? _.bind(prefix, this)() : prefix);
-    increment = (increment || 1);
     suffix = (_.isFunction(suffix) ? _.bind(suffix, this)() : suffix);
+    length = (length || 1);
+    pad = (pad ? pad : '0');
 
     // re-construct sequence generator options
-    options = _.merge({}, { namespace, prefix, increment, suffix });
+    options = ({ namespace, prefix, increment, suffix, length, pad });
     options = _.omitBy(options, _.isUndefined);
 
     //TODO ignore is path has valid sequence pattern
