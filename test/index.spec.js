@@ -12,10 +12,6 @@ describe('sequenceable', () => {
 
   before(done => clear(done));
 
-  const Ticket = model(new Schema({
-    number: { type: String, sequenceable: true, required: true }
-  }));
-
   it('should add validator to schema string', () => {
     expect(mongoose).to.exist;
     expect(SchemaString.prototype.sequenceable).to.exist;
@@ -23,10 +19,36 @@ describe('sequenceable', () => {
   });
 
   it('should be able to generate sequence', (done) => {
+    const Ticket = model(new Schema({
+      number: {
+        type: String,
+        sequenceable: true,
+        required: true
+      }
+    }));
+
     const ticket = new Ticket();
     ticket.validate((error) => {
       expect(error).to.not.exist;
       expect(ticket.number).to.exist;
+      done(error, ticket);
+    });
+  });
+
+  it('should be able to generate sequence with increment', (done) => {
+    const Ticket = model(new Schema({
+      number: {
+        type: String,
+        sequenceable: { increment: 10 },
+        required: true
+      }
+    }));
+
+    const ticket = new Ticket();
+    ticket.validate((error) => {
+      expect(error).to.not.exist;
+      expect(ticket.number).to.exist;
+      expect(ticket.number).to.contain('10');
       done(error, ticket);
     });
   });
