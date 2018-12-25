@@ -1,0 +1,66 @@
+{
+  "name": "@lykmapipo/mongoose-sequenceable",
+  "version": "0.1.0",
+  "description": "mongoose plugin to support sequence fields.",
+  "keywords": [
+    "mongoose",
+    "mongoose-plugin",
+    "mongoose",
+    "sequenceable",
+    "sequencable",
+    "sequence",
+    "ordered",
+    "increment",
+    "counter"
+  ],
+  "main": "index.js",
+  "scripts": {
+    "test": "grunt test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lykmapipo/mongoose-sequenceable.git"
+  },
+  "author": {
+    "name": "lykmapipo",
+    "email": "lallyelias87@gmail.com",
+    "url": "https://github.com/lykmapipo"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/lykmapipo/mongoose-sequenceable/issues"
+  },
+  "homepage": "https://github.com/lykmapipo/mongoose-sequenceable",
+  "contributors": [
+    {
+      "name": "lykmapipo",
+      "github": "https://github.com/lykmapipo"
+    }
+  ],
+  "devDependencies": {
+    "@lykmapipo/mongoose-faker": ">=0.8.2",
+    "@lykmapipo/mongoose-test-helpers": ">=0.2.4",
+    "chai": "^4.2.0",
+    "faker": "^4.1.0",
+    "grunt": "^1.0.3",
+    "grunt-contrib-jshint": "^2.0.0",
+    "grunt-contrib-watch": "^1.1.0",
+    "grunt-mocha-test": "^0.13.3",
+    "jshint-stylish": "^2.2.1",
+    "mocha": "^5.2.0",
+    "mongoose": ">=5.4.0",
+    "underscore.string": "^3.3.5"
+  },
+  "peerDependencies": {
+    "mongoose": ">=5.4.0"
+  },
+  "dependencies": {
+    "@lykmapipo/env": ">=0.3.3",
+    "@lykmapipo/include": ">=0.1.1",
+    "@lykmapipo/mongoose-common": ">=0.5.0",
+    "async": ">=2.6.1",
+    "lodash": ">=4.17.11",
+    "moment": ">=2.23.0",
+    "mongoose-rest-actions": ">=0.22.3"
+  }
+}
