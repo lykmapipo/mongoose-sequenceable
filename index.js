@@ -26,6 +26,7 @@
 
 /* dependencies */
 const _ = require('lodash');
+const { getNumber } = require('@lykmapipo/env');
 const mongoose = require('mongoose');
 const { include } = require('@lykmapipo/include');
 const { SchemaString, MongooseError } = require('@lykmapipo/mongoose-common');
@@ -37,6 +38,31 @@ const Counter = include(__dirname, 'lib', 'counter.model');
 const _error = ('`{VALUE}` is not a valid sequence value for path `{PATH}`.');
 MongooseError.messages.String.sequenceable = _error;
 const DEFAULT_VALUE = 'sequence';
+const SEQUENCE_PAD = getNumber('SEQUENCE_PAD', '0');
+const SEQUENCE_LENGTH = getNumber('SEQUENCE_LENGTH', 4);
+
+
+/**
+ * @description default sequence formatter
+ * @param {Object} optns
+ * @param {String} optns.namespace sequence namespace
+ * @param {String} optns.prefix sequence prefix
+ * @param {String} optns.sequence sequence number
+ * @param {String} optns.suffix sequence suffix
+ * @param {String} optns.length sequence length
+ * @param {String} optns.pad sequence pad
+ * @private
+ */
+function _format(optns) {
+  // obtain options
+  const { prefix, sequence, suffix, length, pad } = optns;
+  //add pads if sequence length < length
+  let _sequence = _.padStart(sequence, length, pad);
+  // format sequence number
+  _sequence = [prefix, _sequence, suffix].join('');
+  // return formatted sequence
+  return _sequence;
+}
 
 
 /**
@@ -53,12 +79,14 @@ function createValidator(optns) {
     // normalize options
     let options = _.merge({}, optns);
     let { namespace, prefix, increment, suffix } = options;
-    let { length, pad, pathName } = options;
+    let { length, pad, format, pathName } = options;
     namespace = (namespace ? namespace : _.get(this, 'constructor.modelName'));
     prefix = (_.isFunction(prefix) ? _.bind(prefix, this)() : prefix);
     suffix = (_.isFunction(suffix) ? _.bind(suffix, this)() : suffix);
-    length = (length || 1);
-    pad = (pad ? pad : '0');
+    length = (length || SEQUENCE_LENGTH);
+    pad = (pad ? pad : SEQUENCE_PAD);
+    format =
+      (_.isFunction(format) ? _.bind(format, this) : _.bind(_format, this));
 
     // re-construct sequence generator options
     options = ({ namespace, prefix, increment, suffix, length, pad });
@@ -66,14 +94,20 @@ function createValidator(optns) {
 
     //TODO ignore is path has valid sequence pattern
     // generate sequence
-    Counter.generate(options, function afterGenerateSequence(error, sequence) {
+    Counter.generate(options, function afterGenerateSequence(error, counter) {
       // set generated sequence
       if (isInstance(this) && pathName) {
-        this[pathName] = sequence;
+        if (isInstance(counter)) {
+          const { namespace, prefix, sequence, suffix } = counter.toObject();
+          this[pathName] =
+            format({ namespace, prefix, sequence, suffix, length, pad });
+        } else {
+          this[pathName] = undefined;
+        }
       }
 
       // notify generation completed
-      const isValid = (!_.isError(error) && !_.isEmpty(sequence));
+      const isValid = (!_.isError(error) && !_.isEmpty(this[pathName]));
       cb(isValid);
     }.bind(this));
 
