@@ -52,13 +52,13 @@ function createValidator(optns) {
 
     // normalize options
     let options = _.merge({}, optns);
-    const { pathName } = options;
-
-    // obtain model name
-    const namespace = _.get(this, 'constructor.modelName');
+    let { namespace, prefix, increment, pathName } = options;
+    namespace = (namespace ? namespace : _.get(this, 'constructor.modelName'));
+    prefix = (_.isFunction(prefix) ? _.bind(prefix, this)() : prefix);
 
     // re-construct sequence generator options
-    options = _.merge({}, { namespace }, optns);
+    options = _.merge({}, { namespace, prefix, increment });
+    options = _.omitBy(options, _.isUndefined);
 
     //TODO ignore is path has valid sequence pattern
     // generate sequence
