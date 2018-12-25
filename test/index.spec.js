@@ -71,6 +71,27 @@ describe('sequenceable', () => {
     });
   });
 
+  it('should be able to generate sequence with function prefix', (done) => {
+    const Ticket = model(new Schema({
+      category: {
+        type: String
+      },
+      number: {
+        type: String,
+        sequenceable: { prefix: function () { return this.category; } },
+        required: true
+      }
+    }));
+
+    const ticket = new Ticket({ category: 'VIP' });
+    ticket.validate((error) => {
+      expect(error).to.not.exist;
+      expect(ticket.number).to.exist;
+      expect(ticket.number).to.contain('VIP');
+      done(error, ticket);
+    });
+  });
+
   it('should be able to generate sequence with increment', (done) => {
     const Ticket = model(new Schema({
       number: {

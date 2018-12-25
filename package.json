@@ -38,10 +38,10 @@
     }
   ],
   "devDependencies": {
+    "@benmaruchu/faker": "^4.2.1",
     "@lykmapipo/mongoose-faker": ">=0.8.2",
     "@lykmapipo/mongoose-test-helpers": ">=0.2.4",
     "chai": "^4.2.0",
-    "faker": "^4.1.0",
     "grunt": "^1.0.3",
     "grunt-contrib-jshint": "^2.0.0",
     "grunt-contrib-watch": "^1.1.0",
