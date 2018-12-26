@@ -2,6 +2,7 @@
 
 /* dependencies */
 const _ = require('lodash');
+const async = require('async');
 const { expect } = require('chai');
 const { include } = require('@lykmapipo/include');
 const { clear } = require('@lykmapipo/mongoose-test-helpers');
@@ -12,6 +13,9 @@ const { Schema, SchemaString, model } = require('@lykmapipo/mongoose-common');
 describe('sequenceable', () => {
 
   before(done => clear(done));
+
+  //wait indexes
+  before((done) => _.delay(done, 2000));
 
   it('should add validator to schema string', () => {
     expect(mongoose).to.exist;
@@ -261,6 +265,49 @@ describe('sequenceable', () => {
       expect(ticket.number).to.contain('0');
       expect(ticket.number).to.contain('-');
       done(error, ticket);
+    });
+  });
+
+  it('should not generate sequence is already set', (done) => {
+    const Ticket = model(new Schema({
+      number: {
+        type: String,
+        sequenceable: true,
+        required: true
+      }
+    }));
+
+    const ticket = new Ticket();
+    ticket.validate((error) => {
+      expect(error).to.not.exist;
+      const number = ticket.number;
+      ticket.validate((_error) => {
+        expect(ticket.number).to.be.equal(number);
+        done(error || _error, ticket);
+      });
+    });
+  });
+
+  it('should be able to generate unique sequence in parallel', (done) => {
+    const Ticket = model(new Schema({
+      number: {
+        type: String,
+        sequenceable: true,
+        required: true
+      }
+    }));
+
+    const vip = new Ticket();
+    const other = new Ticket();
+    async.parallel({
+      vip: (next) => vip.validate(next),
+      other: (next) => other.validate(next)
+    }, (error) => {
+      expect(error).to.not.exist;
+      expect(vip.number).to.exist;
+      expect(other.number).to.exist;
+      expect(other.number).to.not.be.equal(vip.number);
+      done(error);
     });
   });
 
