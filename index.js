@@ -27,6 +27,7 @@
 /* dependencies */
 const _ = require('lodash');
 const { getNumber } = require('@lykmapipo/env');
+const moment = require('moment');
 const mongoose = require('mongoose');
 const { include } = require('@lykmapipo/include');
 const { SchemaString, MongooseError } = require('@lykmapipo/mongoose-common');
@@ -98,9 +99,11 @@ function createValidator(optns) {
       // set generated sequence
       if (isInstance(this) && pathName) {
         if (isInstance(counter)) {
+          const date = moment(new Date());
           const { namespace, prefix, sequence, suffix } = counter.toObject();
-          this[pathName] =
-            format({ namespace, prefix, sequence, suffix, length, pad });
+          const _options =
+            ({ namespace, prefix, sequence, suffix, length, pad, date });
+          this[pathName] = format(_options);
         } else {
           this[pathName] = undefined;
         }

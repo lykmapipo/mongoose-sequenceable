@@ -1,6 +1,7 @@
 'use strict';
 
 /* dependencies */
+const _ = require('lodash');
 const { expect } = require('chai');
 const { include } = require('@lykmapipo/include');
 const { clear } = require('@lykmapipo/mongoose-test-helpers');
@@ -200,6 +201,65 @@ describe('sequenceable', () => {
       expect(ticket.number).to.exist;
       expect(ticket.number).to.contain('x');
       expect(ticket.number).to.not.contain('0');
+      done(error, ticket);
+    });
+  });
+
+  it('should be able to generate sequence with custom format', (done) => {
+    const Ticket = model(new Schema({
+      number: {
+        type: String,
+        sequenceable: {
+          format: function (options) {
+            const { prefix, sequence, date } = options;
+            const day = date.clone().format('MMDD');
+            return [prefix, sequence, day].join('-');
+          }
+        },
+        required: true
+      }
+    }));
+
+    const ticket = new Ticket();
+    ticket.validate((error) => {
+      expect(error).to.not.exist;
+      expect(ticket.number).to.exist;
+      expect(ticket.number).to.contain('-');
+      expect(ticket.number).to.contain(new Date().getDate());
+      done(error, ticket);
+    });
+  });
+
+  it('should be able to generate sequence with custom options', (done) => {
+    const Ticket = model(new Schema({
+      number: {
+        type: String,
+        sequenceable: {
+          prefix: 'V',
+          suffix: 'TZ',
+          increment: 10,
+          length: 10,
+          pad: '0',
+          format: function (options) {
+            const { prefix, sequence, suffix } = options;
+            const { length, pad, date } = options;
+            const day = date.clone().format('YYMMDD');
+            const _sequence = _.padStart(sequence, length, pad);
+            return [prefix, day, _sequence, suffix].join('-');
+          }
+        },
+        required: true
+      }
+    }));
+
+    const ticket = new Ticket();
+    ticket.validate((error) => {
+      expect(error).to.not.exist;
+      expect(ticket.number).to.exist;
+      expect(ticket.number).to.contain('V');
+      expect(ticket.number).to.contain('TZ');
+      expect(ticket.number).to.contain('0');
+      expect(ticket.number).to.contain('-');
       done(error, ticket);
     });
   });
