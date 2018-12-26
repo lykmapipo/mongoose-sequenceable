@@ -18,7 +18,19 @@ $ npm install --save @lykmapipo/mongoose-sequenceable
 ## Usage
 
 ```js
+const mongoose = require('@lykmapipo/mongoose-sequenceable');
+const Ticket = mongoose.model('Ticket', new Schema({
+  customer: { type: String, required: true },
+  number: { type: String, required: true, sequenceable: true }
+}));
+
+Ticket.create({ category: 'Joe Doe' }, (error, ticket) => {
+  console.log(ticket.number); // 180001
+});
 ```
+
+## API
+> WIP
 
 ## References
 - [Create an Auto-Incrementing Sequence Field](https://docs.mongodb.com/v3.0/tutorial/create-an-auto-incrementing-field)
