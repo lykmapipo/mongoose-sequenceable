@@ -1,6 +1,6 @@
 {
   "name": "@lykmapipo/mongoose-sequenceable",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "mongoose plugin to support sequence fields.",
   "keywords": [
     "lykmapipo",
@@ -62,6 +62,6 @@
     "async": ">=3.0.1",
     "lodash": ">=4.17.11",
     "moment": ">=2.24.0",
-    "mongoose-rest-actions": ">=0.28.4"
+    "mongoose-rest-actions": ">=0.28.5"
   }
 }
