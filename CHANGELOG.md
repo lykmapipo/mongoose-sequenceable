@@ -1,3 +1,9 @@
+#### 0.1.9 (2019-09-26)
+
+##### Chores
+
+* **deps:**  force latest version & audit fix ([9344a71a](https://github.com/lykmapipo/mongoose-sequenceable/commit/9344a71ad656031f2f2b120ddcdec6c1f0832e82))
+
 #### 0.1.8 (2019-09-16)
 
 ##### Chores
