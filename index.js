@@ -42,6 +42,7 @@ const DEFAULT_VALUE = 'sequence';
 const SEQUENCE_YEAR_FORMAT = getString('SEQUENCE_YEAR_FORMAT', 'YY');
 const SEQUENCE_PAD = getNumber('SEQUENCE_PAD', '0');
 const SEQUENCE_LENGTH = getNumber('SEQUENCE_LENGTH', 4);
+const SEQUENCE_SEPARATOR = getNumber('SEQUENCE_SEPARATOR', '');
 
 
 /**
@@ -97,7 +98,7 @@ function createFormat(format) {
     //add pads if sequence length < length
     let _sequence = _.padStart(sequence, length, pad);
     // format sequence number
-    _sequence = [prefix, _sequence, suffix].join('');
+    _sequence = [prefix, _sequence, suffix].join(SEQUENCE_SEPARATOR);
     // return formatted sequence
     return _sequence;
   };
