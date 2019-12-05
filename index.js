@@ -29,10 +29,9 @@ const _ = require('lodash');
 const { getNumber, getString } = require('@lykmapipo/env');
 const moment = require('moment');
 const mongoose = require('mongoose');
-const { include } = require('@lykmapipo/include');
 const { SchemaString, MongooseError } = require('@lykmapipo/mongoose-common');
 const { isInstance } = require('@lykmapipo/mongoose-common');
-const Counter = include(__dirname, 'lib', 'counter.model');
+const Counter = require('./lib/counter.model');
 
 
 /* constants */

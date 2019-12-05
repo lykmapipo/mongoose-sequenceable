@@ -4,9 +4,8 @@
 const _ = require('lodash');
 const async = require('async');
 const { expect } = require('chai');
-const { include } = require('@lykmapipo/include');
 const { clear } = require('@lykmapipo/mongoose-test-helpers');
-const mongoose = include(__dirname, '..');
+const mongoose = require('../');
 const { Schema, SchemaString, model } = require('@lykmapipo/mongoose-common');
 
 

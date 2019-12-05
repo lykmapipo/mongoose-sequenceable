@@ -1,3 +1,13 @@
+#### 0.2.0 (2019-12-05)
+
+##### Chores
+
+* **deps:**  force latest version & audit fix ([f2e77130](https://github.com/lykmapipo/mongoose-sequenceable/commit/f2e7713066a7dc7599e01c79388f93eba78ae5ef))
+
+##### New Features
+
+*  support sequence separator env vairable ([14c0b6cb](https://github.com/lykmapipo/mongoose-sequenceable/commit/14c0b6cbdbbf938d798040b0626060fdc6717763))
+
 #### 0.1.11 (2019-10-23)
 
 ##### Chores
