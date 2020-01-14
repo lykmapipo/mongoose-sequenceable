@@ -1,3 +1,9 @@
+#### 0.2.3 (2020-01-14)
+
+##### Bug Fixes
+
+*  use promise based validator ([2a264e91](https://github.com/lykmapipo/mongoose-sequenceable/commit/2a264e9131a1e596edc1b8a421e77aafc36d94dd))
+
 #### 0.2.2 (2020-01-14)
 
 ##### Chores
