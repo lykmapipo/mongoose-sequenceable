@@ -93,11 +93,11 @@ function createFormat(format) {
   }
   return function _format(optns) {
     // obtain options
-    const { prefix, sequence, suffix, length, pad } = optns;
+    const { prefix, sequence, suffix, length, pad, separator } = optns;
     //add pads if sequence length < length
     let _sequence = _.padStart(sequence, length, pad);
     // format sequence number
-    _sequence = [prefix, _sequence, suffix].join(SEQUENCE_SEPARATOR);
+    _sequence = [prefix, _sequence, suffix].join(separator);
     // return formatted sequence
     return _sequence;
   };
@@ -110,50 +110,63 @@ function createFormat(format) {
  * @private
  */
 function createValidator(optns) {
-  return function sequenceValidator(v, cb) {
-    /* this -> Model instance */
+  // dont use arrow: this will be binded to instance
+  return function sequenceValidator(v) {
+    return new Promise(function generateSequence(resolve /*, reject*/ ) {
+      /* this -> Model instance */
 
-    // normalize options
-    let options = _.merge({}, optns);
-    let { namespace, prefix, increment, suffix } = options;
-    let { length, pad, format, pathName } = options;
-    namespace = (namespace ? namespace : _.get(this, 'constructor.modelName'));
-    prefix = _.bind(createPrefix(prefix), this)();
-    suffix = _.bind(createSuffix(suffix), this)();
-    length = (length || SEQUENCE_LENGTH);
-    pad = (pad ? pad : SEQUENCE_PAD);
-    format = _.bind(createFormat(format), this);
+      // normalize options
+      let options = _.merge({}, optns);
+      let { namespace, prefix, increment, suffix } = options;
+      let { length, pad, separator, format, pathName } = options;
+      const modelName = _.get(this, 'constructor.modelName');
+      namespace = (namespace ? namespace : modelName);
+      prefix = _.bind(createPrefix(prefix), this)();
+      suffix = _.bind(createSuffix(suffix), this)();
+      length = (length || SEQUENCE_LENGTH);
+      pad = (pad ? pad : SEQUENCE_PAD);
+      separator = (separator ? separator : SEQUENCE_SEPARATOR);
+      format = _.bind(createFormat(format), this);
 
-    // re-construct sequence generator options
-    options = ({ namespace, prefix, increment, suffix, length, pad });
-    options = _.omitBy(options, _.isUndefined);
+      // re-construct sequence generator options
+      options =
+        ({ namespace, prefix, increment, suffix, length, pad, separator });
+      options = _.omitBy(options, _.isUndefined);
 
-    // exit early if path has valid sequence
-    const isSequence = ((v !== DEFAULT_VALUE) && _.startsWith(v, prefix));
-    if (isSequence) {
-      return cb(true);
-    }
-
-    // generate sequence
-    Counter.generate(options, function afterGenerateSequence(error, counter) {
-      // set generated sequence
-      if (isInstance(this) && pathName) {
-        if (isInstance(counter)) {
-          const date = moment(new Date());
-          const { namespace, prefix, sequence, suffix } = counter.toObject();
-          const _options =
-            ({ namespace, prefix, sequence, suffix, length, pad, date });
-          this[pathName] = format(_options);
-        } else {
-          this[pathName] = undefined;
-        }
+      // exit early if path has valid sequence
+      const isSequence = ((v !== DEFAULT_VALUE) && _.startsWith(v, prefix));
+      if (isSequence) {
+        return resolve(true);
       }
 
-      // notify generation completed
-      const isValid = (!_.isError(error) && !_.isEmpty(this[pathName]));
-      return cb(isValid);
-    }.bind(this));
+      // generate sequence
+      Counter.generate(options, function onSequence(error, counter) {
+        // set generated sequence
+        if (isInstance(this) && pathName) {
+          if (isInstance(counter)) {
+            const date = moment(new Date());
+            const { namespace, prefix, sequence, suffix } = counter.toObject();
+            this[pathName] = format({
+              namespace,
+              prefix,
+              sequence,
+              suffix,
+              length,
+              pad,
+              separator,
+              date
+            });
+          } else {
+            this[pathName] = undefined;
+          }
+        }
 
+        // notify generation completed
+        const isValid =
+          (!_.isError(error) && !_.isEmpty(this[pathName]));
+        return resolve(isValid);
+      }.bind(this));
+    }.bind(this));
   };
 }
 
@@ -206,7 +219,6 @@ SchemaString.prototype.sequenceable = function sequenceable(optns, message) {
 
     // add sequenceable validator
     this.validators.push({
-      isAsync: true,
       validator: this.sequenceableValidator = createValidator(options),
       message: msg,
       type: 'sequenceable'

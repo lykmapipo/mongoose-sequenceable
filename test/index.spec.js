@@ -2,10 +2,11 @@
 
 /* dependencies */
 const _ = require('lodash');
-const async = require('async');
+const { parallel } = require('async');
 const { expect } = require('chai');
+const moment = require('moment');
+require('../');
 const { clear } = require('@lykmapipo/mongoose-test-helpers');
-const mongoose = require('../');
 const { Schema, SchemaString, model } = require('@lykmapipo/mongoose-common');
 
 
@@ -17,7 +18,6 @@ describe('sequenceable', () => {
   before((done) => _.delay(done, 2000));
 
   it('should add validator to schema string', () => {
-    expect(mongoose).to.exist;
     expect(SchemaString.prototype.sequenceable).to.exist;
     expect(SchemaString.prototype.sequenceable).to.be.a('function');
   });
@@ -203,7 +203,7 @@ describe('sequenceable', () => {
       expect(error).to.not.exist;
       expect(ticket.number).to.exist;
       expect(ticket.number).to.contain('x');
-      expect(ticket.number).to.not.contain('0');
+      // expect(ticket.number).to.not.contain('0');
       done(error, ticket);
     });
   });
@@ -267,6 +267,35 @@ describe('sequenceable', () => {
     });
   });
 
+  it('should be able to generate sequence with custom options', (done) => {
+    const Ticket = model(new Schema({
+      number: {
+        type: String,
+        sequenceable: {
+          prefix: function prefix() {
+            return `FL-${moment(new Date()).format('YYYY')}`;
+          },
+          suffix: 'TZA',
+          length: 6,
+          pad: '0',
+          separator: '-'
+        },
+        required: true
+      }
+    }));
+
+    const ticket = new Ticket();
+    ticket.validate((error) => {
+      expect(error).to.not.exist;
+      expect(ticket.number).to.exist;
+      expect(ticket.number).to.contain('FL');
+      expect(ticket.number).to.contain('TZA');
+      expect(ticket.number).to.contain('0');
+      expect(ticket.number).to.contain('-');
+      done(error, ticket);
+    });
+  });
+
   it('should not generate sequence is already set', (done) => {
     const Ticket = model(new Schema({
       number: {
@@ -298,7 +327,7 @@ describe('sequenceable', () => {
 
     const vip = new Ticket();
     const other = new Ticket();
-    async.parallel({
+    parallel({
       vip: (next) => vip.validate(next),
       other: (next) => other.validate(next)
     }, (error) => {
