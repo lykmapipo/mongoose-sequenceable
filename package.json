@@ -1,6 +1,6 @@
 {
   "name": "@lykmapipo/mongoose-sequenceable",
-  "version": "0.2.17",
+  "version": "0.2.18",
   "description": "mongoose plugin to support sequence fields.",
   "keywords": [
     "lykmapipo",
