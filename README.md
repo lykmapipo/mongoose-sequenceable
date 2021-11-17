@@ -30,13 +30,16 @@ $ npm install --save mongoose @lykmapipo/mongoose-sequenceable
 import mongoose from 'mongoose';
 import '@lykmapipo/mongoose-sequenceable';
 
-const Ticket = mongoose.model('Ticket', new Schema({
-  customer: { type: String, required: true },
-  number: { type: String, required: true, sequenceable: true }
-}));
+const Ticket = mongoose.model(
+  'Ticket',
+  new mongoose.Schema({
+    customer: { type: String, required: true },
+    number: { type: String, required: true, sequenceable: true },
+  })
+);
 
 Ticket.create({ customer: 'Joe Doe' }, (error, ticket) => {
-  console.log(ticket.number); // 180001
+  console.log(ticket.number); //=> 210001
 });
 ```
 
