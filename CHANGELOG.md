@@ -1,3 +1,13 @@
+#### 0.3.0 (2021-11-17)
+
+##### Chores
+
+* **release:**  compile latest source ([76b89033](https://github.com/lykmapipo/mongoose-sequenceable/commit/76b8903360947f33e61c9e7315d4dbba8165c0b1))
+
+##### Refactors
+
+*  migrate to es6 ([17425ef7](https://github.com/lykmapipo/mongoose-sequenceable/commit/17425ef7e88a353fd67e4bc8144b73a8944b6c44))
+
 #### 0.2.22 (2020-08-08)
 
 ##### Chores
